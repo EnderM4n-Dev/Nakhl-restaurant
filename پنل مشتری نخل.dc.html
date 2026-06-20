@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Lalezar&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:#F3FFFC;}
+  *{box-sizing:border-box;}
+  ::selection{background:#7FA69C;color:#fff;}
+  @keyframes nakhlRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @media (max-width:760px){
+    .c-pad{ padding-left:16px !important; padding-right:16px !important; }
+    .c-hero{ flex-direction:column !important; text-align:center !important; align-items:center !important; }
+    .c-grid{ grid-template-columns:1fr !important; }
+  }
+</style>
+</helmet>
+
+<div dir="rtl" style="font-family:'Vazirmatn',sans-serif;background:#F3FFFC;min-height:100vh;color:#1E1E1E;">
+
+  <!-- navbar -->
+  <nav style="position:fixed;top:0;left:0;width:100%;z-index:50;height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:linear-gradient(90deg,#334132,#283427);box-shadow:0 3px 16px rgba(0,0,0,.18);" class="c-pad">
+    <div style="display:flex;align-items:center;gap:22px;">
+      <span onClick="{{ goHome }}" style="font-weight:700;font-size:17px;color:#DFEFEB;cursor:pointer;" style-hover="color:#fff;">خانه</span>
+      <span style="width:1.5px;height:24px;background:rgba(223,239,235,.45);"></span>
+      <span onClick="{{ goMenu }}" style="font-weight:700;font-size:17px;color:#DFEFEB;cursor:pointer;" style-hover="color:#fff;">منو</span>
+    </div>
+    <img onClick="{{ goHome }}" src="assets/logo.png" alt="نخل" style="height:44px;width:auto;cursor:pointer;filter:brightness(1.7) drop-shadow(0 2px 6px rgba(0,0,0,.3));" />
+  </nav>
+
+  <div style="padding-top:68px;">
+    <!-- profile hero -->
+    <div style="background:linear-gradient(135deg,#5E9C8B,#3f7567);color:#fff;padding:40px 36px;" class="c-pad">
+      <div class="c-hero" style="max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:24px;">
+        <div style="flex:0 0 auto;width:88px;height:88px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-family:'Lalezar';font-size:38px;color:#3f7567;box-shadow:0 8px 20px rgba(0,0,0,.18);">{{ userInitial }}</div>
+        <div>
+          <h1 style="font-family:'Vazirmatn';font-weight:800;font-size:28px;margin:0 0 6px;">{{ userName }}</h1>
+          <p style="font-size:14.5px;opacity:.92;margin:0;">به حساب کاربری نخل خوش آمدید — نظرها، علاقه‌مندی‌ها و رزروهای شما اینجاست.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- tabs -->
+    <div style="max-width:1080px;margin:0 auto;padding:24px 36px 0;" class="c-pad">
+      <div style="display:flex;gap:8px;background:#fff;border-radius:16px;padding:6px;box-shadow:0 4px 16px rgba(45,70,60,.06);border:1.5px solid #eaf0ec;width:max-content;max-width:100%;">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+          <span onClick="{{ t.set }}" style="cursor:pointer;font-weight:700;font-size:14.5px;padding:11px 22px;border-radius:11px;background:{{ t.bg }};color:{{ t.color }};white-space:nowrap;transition:all .15s;">{{ t.label }}</span>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- FAVORITES TAB -->
+    <sc-if value="{{ isFav }}" hint-placeholder-val="{{ true }}">
+      <div style="max-width:1080px;margin:0 auto;padding:24px 36px 80px;" class="c-pad">
+        <sc-if value="{{ noFav }}" hint-placeholder-val="{{ false }}"><div style="background:#fff;border-radius:18px;padding:40px;text-align:center;border:1.5px solid #eaf0ec;"><p style="font-size:15px;color:rgba(45,54,42,.6);margin:0 0 16px;">هنوز غذایی را به علاقه‌مندی‌ها اضافه نکرده‌اید.</p><button onClick="{{ goMenu }}" style="font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#fff;background:#5E9C8B;border:none;border-radius:11px;padding:11px 26px;cursor:pointer;">مشاهده منو</button></div></sc-if>
+        <div class="c-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;">
+          <sc-for list="{{ favItems }}" as="it" hint-placeholder-count="0">
+            <div data-rise style="background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 4px 16px rgba(45,70,60,.07);border:1.5px solid #eaf0ec;">
+              <div style="height:130px;background:#eef5f1;display:flex;align-items:center;justify-content:center;">
+                <sc-if value="{{ it.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ it.photo }}" style="width:100%;height:100%;object-fit:cover;" /></sc-if>
+                <sc-if value="{{ it.noPhoto }}" hint-placeholder-val="{{ true }}"><img src="{{ it.icon }}" style="width:54px;height:54px;object-fit:contain;opacity:.6;" /></sc-if>
+              </div>
+              <div style="padding:16px 18px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                  <h3 style="font-weight:700;font-size:16px;margin:0;color:#1E1E1E;">{{ it.name }}</h3>
+                  <span onClick="{{ it.remove }}" style="cursor:pointer;color:#C8513B;font-size:13px;font-weight:600;">حذف</span>
+                </div>
+                <span style="font-size:12px;color:#5E9C8B;background:#eaf5f1;padding:2px 10px;border-radius:20px;display:inline-block;margin-top:8px;">{{ it.category }}</span>
+                <div style="margin-top:10px;font-weight:800;font-size:15px;color:#3f7567;">{{ it.priceFa }} <span style="font-size:11px;color:rgba(45,54,42,.5);font-weight:400;">{{ it.unit }}</span></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- MY COMMENTS TAB -->
+    <sc-if value="{{ isComments }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1080px;margin:0 auto;padding:24px 36px 80px;" class="c-pad">
+        <sc-if value="{{ noComments }}" hint-placeholder-val="{{ false }}"><div style="background:#fff;border-radius:18px;padding:40px;text-align:center;border:1.5px solid #eaf0ec;color:rgba(45,54,42,.6);font-size:15px;">هنوز نظری ثبت نکرده‌اید. از صفحه‌ی هر غذا می‌توانید نظر بدهید.</div></sc-if>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <sc-for list="{{ myComments }}" as="cm" hint-placeholder-count="0">
+            <div data-rise style="background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 4px 16px rgba(45,70,60,.06);border:1.5px solid #eaf0ec;border-right:4px solid {{ cm.statusColor }};">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="font-size:12px;color:#5E9C8B;background:#eaf5f1;padding:2px 10px;border-radius:20px;">{{ cm.itemName }}</span>
+                  <span style="color:#E6A93B;font-size:13px;letter-spacing:1px;">{{ cm.stars }}</span>
+                </div>
+                <span style="font-size:12px;font-weight:700;color:{{ cm.statusColor }};background:{{ cm.statusBg }};padding:3px 12px;border-radius:20px;">{{ cm.statusLabel }}</span>
+              </div>
+              <p style="font-size:13.5px;line-height:1.95;color:rgba(45,54,42,.78);margin:0;">{{ cm.text }}</p>
+              <sc-if value="{{ cm.hasReply }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:10px;background:#eaf5f1;border-radius:11px;padding:11px 14px;border-right:3px solid #5E9C8B;">
+                  <span style="font-size:12.5px;font-weight:700;color:#5E9C8B;">پاسخ نخل: </span>
+                  <span style="font-size:13px;color:rgba(45,54,42,.78);">{{ cm.reply }}</span>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ORDERS / PURCHASE HISTORY TAB -->
+    <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1080px;margin:0 auto;padding:24px 36px 80px;" class="c-pad">
+        <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ true }}"><div style="background:#fff;border-radius:18px;padding:40px;text-align:center;border:1.5px solid #eaf0ec;"><p style="font-size:15px;color:rgba(45,54,42,.6);margin:0 0 16px;">هنوز سفارشی ثبت نکرده‌اید.</p><button onClick="{{ goMenu }}" style="font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#fff;background:#5E9C8B;border:none;border-radius:11px;padding:11px 26px;cursor:pointer;">سفارش از منو</button></div></sc-if>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <sc-for list="{{ orders }}" as="o" hint-placeholder-count="0">
+            <div data-rise style="background:#fff;border-radius:18px;padding:20px 22px;box-shadow:0 4px 16px rgba(45,70,60,.07);border:1.5px solid #eaf0ec;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1.5px dashed #e3ece8;padding-bottom:14px;margin-bottom:14px;">
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <span style="font-weight:800;font-size:15px;color:#1E1E1E;">سفارش #{{ o.code }}</span>
+                  <span style="font-size:12.5px;color:rgba(45,54,42,.55);">{{ o.date }} — {{ o.time }}</span>
+                </div>
+                <span style="font-size:12.5px;font-weight:700;color:{{ o.statusColor }};background:{{ o.statusBg }};padding:5px 14px;border-radius:20px;">{{ o.status }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <sc-for list="{{ o.lines }}" as="ln" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <span style="width:28px;height:28px;border-radius:8px;background:#eef5f1;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto;"><img src="{{ ln.icon }}" style="width:18px;height:18px;object-fit:contain;opacity:.7;" /></span>
+                      <span style="font-size:14px;color:#334132;font-weight:600;">{{ ln.name }}</span>
+                      <span style="font-size:12.5px;color:#5E9C8B;font-weight:700;">×{{ ln.qtyFa }}</span>
+                    </div>
+                    <span style="font-size:13px;color:rgba(45,54,42,.6);font-weight:600;">{{ ln.lineFa }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;border-top:1.5px solid #eef4f1;margin-top:14px;padding-top:12px;">
+                <span style="font-size:14px;font-weight:600;color:#5a6b5a;">جمع کل</span>
+                <span style="font-family:'Lalezar';font-size:22px;color:#334132;">{{ o.totalFa }} <span style="font-size:13px;font-family:'Vazirmatn';color:rgba(45,54,42,.5);">هزار تومان</span></span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- RESERVATIONS TAB -->
+    <sc-if value="{{ isReserve }}" hint-placeholder-val="{{ false }}">
+      <div style="max-width:1080px;margin:0 auto;padding:24px 36px 80px;" class="c-pad">
+        <sc-if value="{{ noReserve }}" hint-placeholder-val="{{ true }}"><div style="background:#fff;border-radius:18px;padding:40px;text-align:center;border:1.5px solid #eaf0ec;"><p style="font-size:15px;color:rgba(45,54,42,.6);margin:0 0 16px;">هنوز رزروی ثبت نکرده‌اید.</p><button onClick="{{ goReserve }}" style="font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#fff;background:#5E9C8B;border:none;border-radius:11px;padding:11px 26px;cursor:pointer;">رزرو میز</button></div></sc-if>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <sc-for list="{{ reservations }}" as="r" hint-placeholder-count="0">
+            <div data-rise style="background:#fff;border-radius:16px;padding:18px 22px;box-shadow:0 4px 16px rgba(45,70,60,.06);border:1.5px solid #eaf0ec;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+              <span style="flex:1;min-width:0;font-size:14.5px;font-weight:700;color:#334132;word-break:break-word;line-height:1.7;">{{ r.label }}</span>
+              <span style="flex:0 0 auto;font-size:12.5px;font-weight:700;color:#E0913C;background:rgba(224,145,60,.13);padding:5px 14px;border-radius:20px;white-space:nowrap;">در انتظار تأیید</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1080,&quot;height&quot;:760}}">
+class Component extends DCLogic {
+  state = { tab: (typeof location !== 'undefined' && location.hash === '#orders') ? 'orders' : 'fav', s: null, favs: [] };
+
+  componentDidMount() {
+    try { this.setState({ favs: JSON.parse(localStorage.getItem('nakhl_cust_favs') || '[]') }); } catch (e) {}
+    import('./nakhl-store.js').then(m => {
+      this.store = m.store; this.finalPrice = m.finalPrice;
+      this.setState({ s: this.store.get() });
+      this._unsub = this.store.subscribe(() => this.setState({ s: this.store.get() }));
+    }).catch(e => console.error(e));
+  }
+  componentWillUnmount() { if (this._unsub) this._unsub(); }
+  toFa(n) { return String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]); }
+
+  removeFav(id) {
+    const favs = this.state.favs.filter(x => x !== id);
+    try { localStorage.setItem('nakhl_cust_favs', JSON.stringify(favs)); } catch (e) {}
+    this.setState({ favs });
+  }
+
+  renderVals() {
+    const s = this.state.s;
+    const base = {
+      isFav: this.state.tab === 'fav', isComments: this.state.tab === 'comments', isReserve: this.state.tab === 'reserve', isOrders: this.state.tab === 'orders',
+      userName: 'مهمان نخل', userInitial: 'م',
+      goHome: () => { window.location.href = 'صفحه اصلی نخل.dc.html'; },
+      goMenu: () => { window.location.href = 'منوی نخل.dc.html'; },
+      goReserve: () => { window.location.href = 'رزرو میز.dc.html'; },
+    };
+    const tabDef = [{ id: 'fav', label: 'علاقه‌مندی‌ها' }, { id: 'orders', label: 'تاریخچه خرید' }, { id: 'comments', label: 'نظرهای من' }, { id: 'reserve', label: 'رزروهای من' }];
+    const tabs = tabDef.map(t => ({ label: t.label, set: () => this.setState({ tab: t.id }), bg: this.state.tab === t.id ? '#334132' : 'transparent', color: this.state.tab === t.id ? '#fff' : '#5a6b5a' }));
+    if (!s) return Object.assign(base, { tabs, favItems: [], noFav: true, myComments: [], noComments: true, reservations: [], noReserve: true, orders: [], noOrders: true });
+
+    const stars = (r) => '★★★★★'.slice(0, r) + '☆☆☆☆☆'.slice(0, 5 - r);
+    const favItems = this.state.favs.map(id => s.items.find(x => x.id === id)).filter(Boolean).map(it => {
+      const fp = this.finalPrice(it);
+      return { name: it.name, category: it.category, icon: it.icon, photo: it.photo, hasPhoto: !!it.photo, noPhoto: !it.photo,
+        priceFa: fp == null ? 'ناموجود' : this.toFa(fp), unit: fp == null ? '' : 'هزار تومان', remove: () => this.removeFav(it.id) };
+    });
+
+    const itemName = (id) => { const it = s.items.find(x => x.id === id); return it ? it.name : '—'; };
+    // a customer's comments are those they haven't been told are "demo" — show all comments authored as guest-side (we surface all here for the demo)
+    const myComments = s.comments.slice().reverse().map(c => ({
+      itemName: itemName(c.itemId), text: c.text, stars: stars(c.rating),
+      statusLabel: c.status === 'approved' ? 'منتشر شد' : 'در انتظار تأیید',
+      statusColor: c.status === 'approved' ? '#5E9C8B' : '#E0913C',
+      statusBg: c.status === 'approved' ? 'rgba(94,156,139,.13)' : 'rgba(224,145,60,.13)',
+      hasReply: !!c.reply, reply: c.reply,
+    }));
+
+    const reservations = s.reservations.slice().reverse().map(r => ({ label: r.label || '' }));
+
+    const statusStyle = (st) => {
+      if (st === 'تحویل شد') return { color: '#5E9C8B', bg: 'rgba(94,156,139,.14)' };
+      if (st === 'لغو شد') return { color: '#C8513B', bg: 'rgba(200,81,59,.12)' };
+      return { color: '#E0913C', bg: 'rgba(224,145,60,.13)' };
+    };
+    const orders = (s.orders || []).slice().reverse().map(o => {
+      const ss = statusStyle(o.status);
+      return {
+        code: o.code, date: o.date, time: o.time, status: o.status,
+        statusColor: ss.color, statusBg: ss.bg,
+        totalFa: this.toFa(o.total),
+        lines: o.items.map(l => ({ name: l.name, icon: l.icon, qtyFa: this.toFa(l.qty), lineFa: this.toFa((l.unit || 0) * l.qty) + ' هزار تومان' })),
+      };
+    });
+
+    return Object.assign(base, {
+      tabs,
+      favItems, noFav: favItems.length === 0,
+      myComments, noComments: myComments.length === 0,
+      reservations, noReserve: reservations.length === 0,
+      orders, noOrders: orders.length === 0,
+    });
+  }
+}
+</script>
+</body>
+</html>

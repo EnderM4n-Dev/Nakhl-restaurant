@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&family=Lalezar&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:#eef3f0;}
+  *{box-sizing:border-box;}
+  ::selection{background:#7FA69C;color:#fff;}
+  @keyframes nakhlRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @media (max-width:820px){
+    .a-pad{ padding-left:16px !important; padding-right:16px !important; }
+    .a-stats{ grid-template-columns:repeat(2,1fr) !important; }
+    .a-itemrow{ grid-template-columns:1fr !important; }
+    .a-tabs{ overflow-x:auto !important; }
+  }
+</style>
+</helmet>
+
+<div dir="rtl" style="font-family:'Vazirmatn',sans-serif;background:#eef3f0;min-height:100vh;color:#1E1E1E;">
+
+  <!-- top bar -->
+  <header style="background:linear-gradient(90deg,#334132,#283427);color:#fff;padding:0 32px;height:72px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 3px 16px rgba(0,0,0,.18);" class="a-pad">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <img src="assets/logo.png" alt="نخل" style="height:42px;width:auto;filter:brightness(1.7);" />
+      <div>
+        <div style="font-family:'Vazirmatn';font-weight:800;font-size:19px;">پنل مدیریت نخل</div>
+        <div style="font-size:12px;color:#bcd0c8;">داشبورد مدیر رستوران</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px;">
+      <span onClick="{{ goMenu }}" style="font-size:14px;color:#DFEFEB;cursor:pointer;font-weight:600;" style-hover="color:#fff;">مشاهده سایت ↗</span>
+    </div>
+  </header>
+
+  <!-- stat cards -->
+  <div style="max-width:1180px;margin:0 auto;padding:28px 32px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;" class="a-pad a-stats">
+    <sc-for list="{{ stats }}" as="st" hint-placeholder-count="4">
+      <div style="background:#fff;border-radius:18px;padding:20px 22px;box-shadow:0 4px 16px rgba(45,70,60,.07);border:1.5px solid #eaf0ec;">
+        <div style="font-size:13px;color:rgba(45,54,42,.6);font-weight:600;margin-bottom:8px;">{{ st.label }}</div>
+        <div style="font-family:'Lalezar';font-size:32px;color:{{ st.color }};line-height:1;">{{ st.value }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- tabs -->
+  <div style="max-width:1180px;margin:0 auto;padding:24px 32px 12px;" class="a-pad">
+    <div class="a-tabs" style="display:flex;gap:8px;background:#fff;border-radius:16px;padding:6px;box-shadow:0 4px 16px rgba(45,70,60,.06);border:1.5px solid #eaf0ec;width:max-content;max-width:100%;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+        <span onClick="{{ t.set }}" style="cursor:pointer;font-weight:700;font-size:14.5px;padding:11px 22px;border-radius:11px;background:{{ t.bg }};color:{{ t.color }};white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:8px;">
+          {{ t.label }}
+          <sc-if value="{{ t.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="background:#C8513B;color:#fff;font-size:11px;font-weight:800;min-width:20px;height:20px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;padding:0 6px;">{{ t.badge }}</span></sc-if>
+        </span>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ===================== MENU TAB ===================== -->
+  <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:1180px;margin:0 auto;padding:8px 32px 80px;" class="a-pad">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <span style="font-size:14px;font-weight:600;color:#5a6b5a;">دسته:</span>
+        <select value="{{ catFilter }}" onChange="{{ setCatFilter }}" style="font-family:'Vazirmatn';font-size:14px;padding:10px 16px;border:1.5px solid #d8e6e0;border-radius:12px;background:#fff;outline:none;color:#1E1E1E;min-width:200px;">
+          <sc-for list="{{ catOptions }}" as="co" hint-placeholder-count="6"><option value="{{ co.value }}">{{ co.label }}</option></sc-for>
+        </select>
+        <span style="font-size:13px;color:rgba(45,54,42,.55);">{{ shownCountFa }} آیتم</span>
+        <button onClick="{{ toggleAddForm }}" style="margin-right:auto;font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#fff;background:#5E9C8B;border:none;border-radius:11px;padding:10px 20px;cursor:pointer;display:flex;align-items:center;gap:7px;">
+          <span style="font-size:18px;line-height:1;">{{ addBtnIcon }}</span> {{ addBtnLabel }}
+        </button>
+      </div>
+
+      <!-- add new item form -->
+      <sc-if value="{{ addOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#fff;border-radius:18px;padding:22px;box-shadow:0 4px 16px rgba(45,70,60,.06);border:1.5px solid #cfe6df;border-right:4px solid #5E9C8B;margin-bottom:18px;">
+          <h3 style="font-family:'Vazirmatn';font-weight:800;font-size:17px;color:#334132;margin:0 0 16px;">افزودن غذای جدید</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" class="a-itemrow">
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <span style="font-size:12.5px;font-weight:600;color:#5a6b5a;">نام غذا</span>
+              <input value="{{ newName }}" onInput="{{ setNewName }}" type="text" placeholder="مثلاً برگر ویژه" style="font-family:'Vazirmatn';font-size:14px;padding:11px 13px;border:1.5px solid #e1eae5;border-radius:11px;background:#fafdfb;outline:none;color:#1E1E1E;" />
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <span style="font-size:12.5px;font-weight:600;color:#5a6b5a;">دسته‌بندی</span>
+              <select value="{{ newCat }}" onChange="{{ setNewCat }}" style="font-family:'Vazirmatn';font-size:14px;padding:11px 13px;border:1.5px solid #e1eae5;border-radius:11px;background:#fafdfb;outline:none;color:#1E1E1E;">
+                <sc-for list="{{ realCatOptions }}" as="co" hint-placeholder-count="6"><option value="{{ co.value }}">{{ co.label }}</option></sc-for>
+              </select>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;grid-column:1 / -1;">
+              <span style="font-size:12.5px;font-weight:600;color:#5a6b5a;">توضیحات</span>
+              <textarea value="{{ newDesc }}" onInput="{{ setNewDesc }}" placeholder="ترکیبات و توضیح کوتاه..." style="font-family:'Vazirmatn';font-size:13.5px;line-height:1.9;padding:11px 13px;border:1.5px solid #e1eae5;border-radius:11px;background:#fafdfb;outline:none;color:#1E1E1E;min-height:54px;resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
+              <span style="font-size:12.5px;font-weight:600;color:#5a6b5a;">قیمت (هزار تومان)</span>
+              <input value="{{ newPrice }}" onInput="{{ setNewPrice }}" type="number" placeholder="مثلاً ۴۵۰" style="font-family:'Vazirmatn';font-size:14px;padding:11px 13px;border:1.5px solid #e1eae5;border-radius:11px;background:#fafdfb;outline:none;color:#1E1E1E;direction:ltr;text-align:right;" />
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:10px;">
+              <button onClick="{{ submitNew }}" style="flex:1;font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#fff;background:#334132;border:none;border-radius:11px;padding:12px;cursor:pointer;">افزودن به منو</button>
+              <button onClick="{{ toggleAddForm }}" style="font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#5a6b5a;background:#f0f5f2;border:none;border-radius:11px;padding:12px 18px;cursor:pointer;">لغو</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <sc-for list="{{ editItems }}" as="it" hint-placeholder-count="6">
+          <div data-rise style="background:#fff;border-radius:18px;padding:20px;box-shadow:0 4px 16px rgba(45,70,60,.06);border:1.5px solid #eaf0ec;">
+            <div class="a-itemrow" style="display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:start;">
+              <div>
+                <div style="position:relative;width:100%;height:120px;border-radius:14px;overflow:hidden;background:#f0f5f2;display:flex;align-items:center;justify-content:center;border:1.5px dashed #cdded6;">
+                  <sc-if value="{{ it.hasPhoto }}" hint-placeholder-val="{{ false }}"><img src="{{ it.photo }}" alt="" style="width:100%;height:100%;object-fit:cover;" /></sc-if>
+                  <sc-if value="{{ it.noPhoto }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.55;"><img src="{{ it.icon }}" style="width:38px;height:38px;object-fit:contain;" /><span style="font-size:11px;color:#7a8a7a;">بدون عکس</span></div></sc-if>
+                </div>
+                <label style="display:block;margin-top:8px;text-align:center;font-size:12.5px;font-weight:700;color:#5E9C8B;background:#eaf5f1;border:1.5px solid #cfe6df;border-radius:10px;padding:8px;cursor:pointer;">
+                  آپلود عکس
+                  <input type="file" accept="image/*" onChange="{{ it.uploadPhoto }}" style="display:none;" />
+                </label>
+                <sc-if value="{{ it.hasPhoto }}" hint-placeholder-val="{{ false }}"><span onClick="{{ it.removePhoto }}" style="display:block;text-align:center;margin-top:6px;font-size:12px;color:#C8513B;cursor:pointer;font-weight:600;">حذف عکس</span></sc-if>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <span style="font-size:11.5px;font-weight:700;color:#5E9C8B;background:#eaf5f1;padding:3px 11px;border-radius:20px;">{{ it.category }}</span>
+                  <span style="font-size:12px;color:rgba(45,54,42,.5);">🔥 {{ it.ordersFa }} سفارش</span>
+                  <label style="margin-right:auto;display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:{{ it.availColor }};cursor:pointer;">
+                    <input type="checkbox" checked="{{ it.available }}" onChange="{{ it.toggleAvail }}" style="width:16px;height:16px;accent-color:#5E9C8B;" />
+                    {{ it.availLabel }}
+                  </label>
+                </div>
+                <input value="{{ it.name }}" onInput="{{ it.setName }}" type="text" style="font-family:'Vazirmatn';font-weight:700;font-size:16px;padding:11px 14px;border:1.5px solid #e1eae5;border-radius:11px;background:#fafdfb;outline:none;color:#1E1E1E;" />
+                <textarea value="{{ it.desc }}" onInput="{{ it.setDesc }}" placeholder="توضیحات غذا..." style="font-family:'Vazirmatn';font-size:13.5px;line-height:1.9;padding:11px 14px;border:1.5px solid #e1eae5;border-radius:11px;background:#fafdfb;outline:none;color:#1E1E1E;min-height:58px;resize:vertical;"></textarea>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                  <div style="display:flex;flex-direction:column;gap:5px;">
+                    <span style="font-size:12px;font-weight:600;color:#5a6b5a;">قیمت (هزار تومان)</span>
+                    <input value="{{ it.price }}" onInput="{{ it.setPrice }}" type="number" style="width:130px;font-family:'Vazirmatn';font-size:14px;padding:10px 12px;border:1.5px solid #e1eae5;border-radius:11px;background:#fafdfb;outline:none;color:#1E1E1E;direction:ltr;text-align:right;" />
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:5px;">
+                    <span style="font-size:12px;font-weight:600;color:#5a6b5a;">تخفیف (٪)</span>
+                    <input value="{{ it.discount }}" onInput="{{ it.setDiscount }}" type="number" min="0" max="90" style="width:100px;font-family:'Vazirmatn';font-size:14px;padding:10px 12px;border:1.5px solid #e1eae5;border-radius:11px;background:#fafdfb;outline:none;color:#1E1E1E;direction:ltr;text-align:right;" />
+                  </div>
+                  <sc-if value="{{ it.hasDiscount }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-direction:column;gap:5px;">
+                      <span style="font-size:12px;font-weight:600;color:#C8513B;">قیمت نهایی</span>
+                      <span style="font-weight:800;font-size:16px;color:#C8513B;padding:9px 0;">{{ it.finalFa }}</span>
+                    </div>
+                  </sc-if>
+                  <button onClick="{{ it.save }}" style="margin-right:auto;font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#fff;background:{{ it.saveBg }};border:none;border-radius:11px;padding:11px 24px;cursor:pointer;transition:background .18s;">{{ it.saveLabel }}</button>
+                  <button onClick="{{ it.remove }}" style="font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#C8513B;background:#fbeeeb;border:none;border-radius:11px;padding:11px 18px;cursor:pointer;">حذف</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== COMMENTS TAB ===================== -->
+  <sc-if value="{{ isComments }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1180px;margin:0 auto;padding:8px 32px 80px;" class="a-pad">
+      <h3 style="font-family:'Vazirmatn';font-weight:800;font-size:18px;color:#334132;margin:6px 0 14px;display:flex;align-items:center;gap:10px;">در انتظار تأیید <span style="background:#C8513B;color:#fff;font-size:12px;font-weight:800;min-width:22px;height:22px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;padding:0 7px;">{{ pendingCountFa }}</span></h3>
+      <sc-if value="{{ noPending }}" hint-placeholder-val="{{ false }}"><div style="background:#fff;border-radius:16px;padding:26px;text-align:center;color:rgba(45,54,42,.55);font-size:14px;border:1.5px solid #eaf0ec;margin-bottom:30px;">نظر جدیدی برای بررسی وجود ندارد.</div></sc-if>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:34px;">
+        <sc-for list="{{ pending }}" as="cm" hint-placeholder-count="2">
+          <div data-rise style="background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 4px 16px rgba(45,70,60,.06);border:1.5px solid #f3ddd8;border-right:4px solid #E0913C;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-weight:700;font-size:15px;color:#1E1E1E;">{{ cm.name }}</span>
+                <span style="font-size:12px;color:#5E9C8B;background:#eaf5f1;padding:2px 10px;border-radius:20px;">{{ cm.itemName }}</span>
+                <span style="color:#E6A93B;font-size:13px;letter-spacing:1px;">{{ cm.stars }}</span>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button onClick="{{ cm.approve }}" style="font-family:'Vazirmatn';font-weight:700;font-size:13px;color:#fff;background:#5E9C8B;border:none;border-radius:9px;padding:8px 16px;cursor:pointer;">تأیید و انتشار</button>
+                <button onClick="{{ cm.reject }}" style="font-family:'Vazirmatn';font-weight:700;font-size:13px;color:#C8513B;background:#fbeeeb;border:none;border-radius:9px;padding:8px 16px;cursor:pointer;">رد</button>
+              </div>
+            </div>
+            <p style="font-size:13.5px;line-height:1.95;color:rgba(45,54,42,.78);margin:0;">{{ cm.text }}</p>
+          </div>
+        </sc-for>
+      </div>
+
+      <h3 style="font-family:'Vazirmatn';font-weight:800;font-size:18px;color:#334132;margin:0 0 14px;">منتشر شده</h3>
+      <sc-if value="{{ noApproved }}" hint-placeholder-val="{{ false }}"><div style="background:#fff;border-radius:16px;padding:26px;text-align:center;color:rgba(45,54,42,.55);font-size:14px;border:1.5px solid #eaf0ec;">هنوز نظری منتشر نشده است.</div></sc-if>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <sc-for list="{{ approved }}" as="cm" hint-placeholder-count="2">
+          <div style="background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 4px 16px rgba(45,70,60,.06);border:1.5px solid #eaf0ec;border-right:4px solid #5E9C8B;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+              <span style="font-weight:700;font-size:15px;color:#1E1E1E;">{{ cm.name }}</span>
+              <span style="font-size:12px;color:#5E9C8B;background:#eaf5f1;padding:2px 10px;border-radius:20px;">{{ cm.itemName }}</span>
+              <span style="color:#E6A93B;font-size:13px;letter-spacing:1px;">{{ cm.stars }}</span>
+            </div>
+            <p style="font-size:13.5px;line-height:1.95;color:rgba(45,54,42,.78);margin:0 0 12px;">{{ cm.text }}</p>
+            <sc-if value="{{ cm.hasReply }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#eaf5f1;border-radius:11px;padding:11px 14px;border-right:3px solid #5E9C8B;margin-bottom:10px;">
+                <span style="font-size:12.5px;font-weight:700;color:#5E9C8B;">پاسخ نخل: </span>
+                <span style="font-size:13px;color:rgba(45,54,42,.78);">{{ cm.reply }}</span>
+              </div>
+            </sc-if>
+            <div style="display:flex;gap:9px;align-items:center;">
+              <input value="{{ cm.draftReply }}" onInput="{{ cm.setReply }}" type="text" placeholder="پاسخ به این نظر..." style="flex:1;font-family:'Vazirmatn';font-size:13px;padding:9px 13px;border:1.5px solid #e1eae5;border-radius:10px;background:#fafdfb;outline:none;color:#1E1E1E;" />
+              <button onClick="{{ cm.sendReply }}" style="font-family:'Vazirmatn';font-weight:700;font-size:13px;color:#fff;background:#5E9C8B;border:none;border-radius:10px;padding:9px 18px;cursor:pointer;">{{ cm.replyLabel }}</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== ORDERS TAB ===================== -->
+  <sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1180px;margin:0 auto;padding:8px 32px 80px;" class="a-pad">
+      <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ true }}"><div style="background:#fff;border-radius:16px;padding:30px;text-align:center;color:rgba(45,54,42,.55);font-size:14px;border:1.5px solid #eaf0ec;">هنوز سفارشی ثبت نشده است.</div></sc-if>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <sc-for list="{{ adminOrders }}" as="o" hint-placeholder-count="0">
+          <div data-rise style="background:#fff;border-radius:18px;padding:20px 22px;box-shadow:0 4px 16px rgba(45,70,60,.07);border:1.5px solid #eaf0ec;border-right:4px solid {{ o.borderColor }};">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1.5px dashed #e3ece8;padding-bottom:14px;margin-bottom:14px;">
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <span style="font-weight:800;font-size:16px;color:#1E1E1E;">سفارش #{{ o.code }}</span>
+                <span style="font-size:12.5px;color:rgba(45,54,42,.55);">{{ o.date }} — {{ o.time }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <span style="font-size:12.5px;font-weight:700;color:{{ o.statusColor }};background:{{ o.statusBg }};padding:5px 14px;border-radius:20px;">{{ o.status }}</span>
+                <span style="font-family:'Lalezar';font-size:20px;color:#334132;">{{ o.totalFa }} <span style="font-size:12px;font-family:'Vazirmatn';color:rgba(45,54,42,.5);">هزار تومان</span></span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">
+              <sc-for list="{{ o.lines }}" as="ln" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="width:26px;height:26px;border-radius:7px;background:#eef5f1;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><img src="{{ ln.icon }}" style="width:16px;height:16px;object-fit:contain;opacity:.7;" /></span>
+                    <span style="font-size:14px;color:#334132;font-weight:600;">{{ ln.name }}</span>
+                    <span style="font-size:12.5px;color:#5E9C8B;font-weight:700;">×{{ ln.qtyFa }}</span>
+                  </div>
+                  <span style="font-size:13px;color:rgba(45,54,42,.6);font-weight:600;">{{ ln.lineFa }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span style="font-size:13px;font-weight:600;color:#5a6b5a;margin-left:6px;">تغییر وضعیت:</span>
+              <sc-for list="{{ o.actions }}" as="act" hint-placeholder-count="4">
+                <button onClick="{{ act.set }}" style="font-family:'Vazirmatn';font-weight:700;font-size:12.5px;color:{{ act.color }};background:{{ act.bg }};border:1.5px solid {{ act.border }};border-radius:10px;padding:7px 14px;cursor:pointer;transition:filter .15s;" style-hover="filter:brightness(1.08);">{{ act.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== RESERVATIONS TAB ===================== -->
+  <sc-if value="{{ isReserve }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1180px;margin:0 auto;padding:8px 32px 80px;" class="a-pad">
+      <sc-if value="{{ noReserve }}" hint-placeholder-val="{{ true }}"><div style="background:#fff;border-radius:16px;padding:30px;text-align:center;color:rgba(45,54,42,.55);font-size:14px;border:1.5px solid #eaf0ec;">هنوز رزروی ثبت نشده است.</div></sc-if>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <sc-for list="{{ reservations }}" as="r" hint-placeholder-count="0">
+          <div data-rise style="background:#fff;border-radius:16px;padding:18px 22px;box-shadow:0 4px 16px rgba(45,70,60,.06);border:1.5px solid #eaf0ec;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <span style="font-weight:700;font-size:16px;color:#1E1E1E;">{{ r.name }}</span>
+              <span style="font-size:13px;color:rgba(45,54,42,.6);direction:ltr;text-align:right;">{{ r.phone }}</span>
+            </div>
+            <span style="font-size:13.5px;color:#334132;font-weight:600;background:#f0f5f2;padding:8px 16px;border-radius:11px;">{{ r.label }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { tab: 'menu', s: null, catFilter: 'all', drafts: {}, replyDrafts: {}, savedId: null,
+    addOpen: false, newItem: { name: '', category: '', desc: '', price: '' } };
+
+  componentDidMount() {
+    import('./nakhl-store.js').then(m => {
+      this.store = m.store; this.pendingComments = m.pendingComments;
+      this.refresh();
+      this._unsub = this.store.subscribe(() => this.refresh());
+    }).catch(e => console.error('store load', e));
+  }
+  componentWillUnmount() { if (this._unsub) this._unsub(); }
+  refresh() {
+    const s = this.store.get();
+    const drafts = Object.assign({}, this.state.drafts);
+    s.items.forEach(it => { if (!drafts[it.id]) drafts[it.id] = { name: it.name, desc: it.desc, price: it.price == null ? '' : it.price, discount: it.discount || 0 }; });
+    this.setState({ s, drafts });
+  }
+  toFa(n) { return String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]); }
+
+  setDraft(id, patch) { this.setState({ drafts: Object.assign({}, this.state.drafts, { [id]: Object.assign({}, this.state.drafts[id], patch) }) }); }
+
+  saveItem(id) {
+    const d = this.state.drafts[id];
+    this.store.updateItem(id, { name: d.name, desc: d.desc, price: d.price === '' ? null : Number(d.price), discount: Number(d.discount) || 0 });
+    this.setState({ savedId: id });
+    setTimeout(() => { if (this.state.savedId === id) this.setState({ savedId: null }); }, 1600);
+  }
+
+  uploadPhoto(id, ev) {
+    const file = ev.target.files && ev.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => this.store.updateItem(id, { photo: reader.result });
+    reader.readAsDataURL(file);
+  }
+
+  setReplyDraft(id, val) { this.setState({ replyDrafts: Object.assign({}, this.state.replyDrafts, { [id]: val }) }); }
+  sendReply(id) { this.store.replyComment(id, this.state.replyDrafts[id] || ''); }
+
+  setNew(patch) { this.setState({ newItem: Object.assign({}, this.state.newItem, patch) }); }
+  submitNew() {
+    const n = this.state.newItem;
+    if (!n.name || !n.name.trim()) return;
+    const s = this.state.s;
+    const sample = s.items.find(x => x.category === n.category);
+    this.store.addItem({
+      name: n.name.trim(), desc: n.desc, price: n.price,
+      category: n.category || (sample ? sample.category : ''),
+      sectionId: sample ? sample.sectionId : 'fastfood',
+      sectionLabel: sample ? sample.sectionLabel : '',
+      icon: sample ? sample.icon : 'assets/icons/salad.png',
+    });
+    this.setState({ addOpen: false, newItem: { name: '', category: '', desc: '', price: '' }, catFilter: n.category || this.state.catFilter });
+  }
+
+  renderVals() {
+    const s = this.state.s;
+    const base = { isMenu: this.state.tab === 'menu', isComments: this.state.tab === 'comments', isReserve: this.state.tab === 'reserve', isOrders: this.state.tab === 'orders',
+      goMenu: () => { window.location.href = 'صفحه اصلی نخل.dc.html'; } };
+    if (!s) return Object.assign(base, { stats: [], tabs: [], editItems: [], catOptions: [], pending: [], approved: [], reservations: [], adminOrders: [], noOrders: true, catFilter: 'all' });
+
+    const pending = this.pendingComments(s);
+    const approvedAll = s.comments.filter(c => c.status === 'approved');
+    const itemName = (id) => { const it = s.items.find(x => x.id === id); return it ? it.name : '—'; };
+    const stars = (r) => '★★★★★'.slice(0, r) + '☆☆☆☆☆'.slice(0, 5 - r);
+
+    const stats = [
+      { label: 'تعداد آیتم منو', value: this.toFa(s.items.length), color: '#5E9C8B' },
+      { label: 'کل سفارش‌ها', value: this.toFa(s.items.reduce((a, b) => a + b.orders, 0)), color: '#E0913C' },
+      { label: 'نظرات منتظر تأیید', value: this.toFa(pending.length), color: '#C8513B' },
+      { label: 'سفارش‌ها', value: this.toFa((s.orders || []).length), color: '#E0913C' },
+      { label: 'رزروها', value: this.toFa(s.reservations.length), color: '#334132' },
+    ];
+
+    const activeOrders = (s.orders || []).filter(o => o.status !== 'تحویل داده شد' && o.status !== 'لغو شد').length;
+    const tabDef = [
+      { id: 'menu', label: 'مدیریت منو', badge: 0 },
+      { id: 'orders', label: 'سفارش‌ها', badge: activeOrders },
+      { id: 'comments', label: 'نظرات', badge: pending.length },
+      { id: 'reserve', label: 'رزروها', badge: 0 },
+    ];
+    const tabs = tabDef.map(t => ({
+      label: t.label, set: () => this.setState({ tab: t.id }),
+      bg: this.state.tab === t.id ? '#334132' : 'transparent',
+      color: this.state.tab === t.id ? '#fff' : '#5a6b5a',
+      hasBadge: t.badge > 0, badge: this.toFa(t.badge),
+    }));
+
+    const cats = [];
+    s.items.forEach(it => { if (!cats.includes(it.category)) cats.push(it.category); });
+    const catOptions = [{ value: 'all', label: 'همه دسته‌ها' }].concat(cats.map(c => ({ value: c, label: c })));
+    const shown = s.items.filter(it => this.state.catFilter === 'all' ? true : it.category === this.state.catFilter);
+
+    const editItems = shown.map(it => {
+      const d = this.state.drafts[it.id] || { name: it.name, desc: it.desc, price: it.price, discount: it.discount };
+      const disc = Number(d.discount) || 0;
+      const priceN = d.price === '' ? null : Number(d.price);
+      const finalN = (priceN != null && disc) ? Math.round(priceN * (1 - disc / 100)) : priceN;
+      const saved = this.state.savedId === it.id;
+      return {
+        icon: it.icon, category: it.category, ordersFa: this.toFa(it.orders),
+        photo: it.photo, hasPhoto: !!it.photo, noPhoto: !it.photo,
+        name: d.name, desc: d.desc, price: d.price, discount: d.discount,
+        hasDiscount: !!disc && priceN != null, finalFa: finalN == null ? '—' : this.toFa(finalN),
+        available: it.available, availLabel: it.available ? 'موجود' : 'ناموجود',
+        availColor: it.available ? '#5E9C8B' : '#C8513B',
+        saveLabel: saved ? '✓ ذخیره شد' : 'ذخیره', saveBg: saved ? '#5E9C8B' : '#334132',
+        setName: (e) => this.setDraft(it.id, { name: e.target.value }),
+        setDesc: (e) => this.setDraft(it.id, { desc: e.target.value }),
+        setPrice: (e) => this.setDraft(it.id, { price: e.target.value }),
+        setDiscount: (e) => this.setDraft(it.id, { discount: e.target.value }),
+        toggleAvail: (e) => this.store.updateItem(it.id, { available: e.target.checked }),
+        uploadPhoto: (e) => this.uploadPhoto(it.id, e),
+        removePhoto: () => this.store.updateItem(it.id, { photo: '' }),
+        save: () => this.saveItem(it.id),
+        remove: () => this.store.removeItem(it.id),
+      };
+    });
+
+    const realCatOptions = cats.map(c => ({ value: c, label: c }));
+    const n = this.state.newItem;
+
+    const pendingV = pending.map(cm => ({
+      name: cm.name, text: cm.text, itemName: itemName(cm.itemId), stars: stars(cm.rating),
+      approve: () => this.store.approveComment(cm.id),
+      reject: () => this.store.rejectComment(cm.id),
+    }));
+
+    const approvedV = approvedAll.map(cm => ({
+      name: cm.name, text: cm.text, itemName: itemName(cm.itemId), stars: stars(cm.rating),
+      hasReply: !!cm.reply, reply: cm.reply,
+      draftReply: this.state.replyDrafts[cm.id] != null ? this.state.replyDrafts[cm.id] : (cm.reply || ''),
+      replyLabel: cm.reply ? 'بروزرسانی' : 'ارسال پاسخ',
+      setReply: (e) => this.setReplyDraft(cm.id, e.target.value),
+      sendReply: () => this.sendReply(cm.id),
+    }));
+
+    const reservationsV = s.reservations.slice().reverse().map(r => ({
+      name: r.name || 'مهمان', phone: r.phone || '—', label: r.label || '',
+    }));
+
+    const statusList = ['در انتظار تأیید', 'در حال آماده‌سازی', 'در حال ارسال', 'تحویل داده شد', 'لغو شد'];
+    const statusStyle = (st) => {
+      if (st === 'تحویل داده شد') return { color: '#5E9C8B', bg: 'rgba(94,156,139,.14)', border: '#5E9C8B' };
+      if (st === 'لغو شد') return { color: '#C8513B', bg: 'rgba(200,81,59,.12)', border: '#C8513B' };
+      if (st === 'در حال ارسال') return { color: '#3f8fc4', bg: 'rgba(63,143,196,.12)', border: '#3f8fc4' };
+      if (st === 'در حال آماده‌سازی') return { color: '#E0913C', bg: 'rgba(224,145,60,.13)', border: '#E0913C' };
+      return { color: '#8a7450', bg: 'rgba(138,116,80,.12)', border: '#8a7450' };
+    };
+    const adminOrders = (s.orders || []).slice().reverse().map(o => {
+      const ss = statusStyle(o.status);
+      return {
+        code: o.code, date: o.date, time: o.time, status: o.status,
+        statusColor: ss.color, statusBg: ss.bg, borderColor: ss.border,
+        totalFa: this.toFa(o.total),
+        lines: o.items.map(l => ({ name: l.name, icon: l.icon || '', qtyFa: this.toFa(l.qty), lineFa: this.toFa((l.unit || 0) * l.qty) })),
+        actions: statusList.map(st => {
+          const sty = statusStyle(st);
+          const active = o.status === st;
+          return {
+            label: st, set: active ? () => {} : () => this.store.setOrderStatus(o.id, st),
+            color: active ? '#fff' : sty.color, bg: active ? sty.border : sty.bg, border: sty.border,
+          };
+        }),
+      };
+    });
+
+    return Object.assign(base, {
+      stats, tabs,
+      catFilter: this.state.catFilter,
+      setCatFilter: (e) => this.setState({ catFilter: e.target.value }),
+      catOptions, shownCountFa: this.toFa(shown.length),
+      editItems,
+      addOpen: this.state.addOpen,
+      addBtnIcon: this.state.addOpen ? '×' : '+',
+      addBtnLabel: this.state.addOpen ? 'بستن' : 'افزودن غذا',
+      toggleAddForm: () => this.setState({ addOpen: !this.state.addOpen, newItem: { name: '', category: cats[0] || '', desc: '', price: '' } }),
+      realCatOptions,
+      newName: n.name, newCat: n.category, newDesc: n.desc, newPrice: n.price,
+      setNewName: (e) => this.setNew({ name: e.target.value }),
+      setNewCat: (e) => this.setNew({ category: e.target.value }),
+      setNewDesc: (e) => this.setNew({ desc: e.target.value }),
+      setNewPrice: (e) => this.setNew({ price: e.target.value }),
+      submitNew: () => this.submitNew(),
+      pending: pendingV, noPending: pendingV.length === 0, pendingCountFa: this.toFa(pending.length),
+      approved: approvedV, noApproved: approvedV.length === 0,
+      reservations: reservationsV, noReserve: reservationsV.length === 0,
+      adminOrders, noOrders: adminOrders.length === 0,
+    });
+  }
+}
+</script>
+</body>
+</html>

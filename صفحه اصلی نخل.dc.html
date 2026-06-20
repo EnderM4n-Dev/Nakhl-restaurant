@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&amp;family=Lalezar&amp;display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:#F3FFFC;}
+  *{box-sizing:border-box;}
+  ::selection{background:#7FA69C;color:#fff;}
+  @keyframes nakhlFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+  @keyframes nakhlFade{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== MOBILE (≤768px): full-bleed zoomed hero, name + buttons overlaid on the image ===== */
+  @media (max-width:768px){
+    #heroWrap{ height:100vh !important; }
+    #heroStage{ position:relative !important; height:100vh !important; overflow:hidden !important;
+      display:block !important; padding:0 !important; }
+    #mintPanel{ display:none !important; }
+    /* zoomed background image */
+    #heroImg{ position:absolute !important; inset:0 !important; top:0 !important; right:0 !important; left:0 !important;
+      width:100% !important; height:100% !important; background-size:cover !important; background-position:center !important;
+      transform:scale(1.28) !important; transform-origin:center !important; z-index:1 !important; }
+    /* dark scrim for legibility */
+    #heroStage::after{ content:''; position:absolute; inset:0; z-index:2; pointer-events:none;
+      background:linear-gradient(to bottom, rgba(20,28,20,.30) 0%, rgba(20,28,20,.18) 38%, rgba(20,28,20,.62) 100%); }
+    #brandLogo{ display:none !important; }
+    #panelText{ position:absolute !important; top:46% !important; left:50% !important; width:90% !important;
+      transform:translate(-50%,-50%) !important; opacity:1 !important; order:0 !important; padding:0 !important;
+      text-align:center !important; z-index:5 !important; }
+    #panelText h1{ color:#fff !important; text-shadow:0 2px 14px rgba(0,0,0,.45) !important; }
+    #panelText p{ color:rgba(255,255,255,.94) !important; max-width:100% !important; text-shadow:0 1px 10px rgba(0,0,0,.4) !important; }
+    /* buttons pinned over the lower part of the image, text on one line */
+    #heroBtns{ position:absolute !important; bottom:7vh !important; top:auto !important; left:50% !important;
+      transform:translateX(-50%) !important; opacity:1 !important; z-index:5 !important; flex-wrap:nowrap !important; gap:12px !important; }
+    #heroBtns button{ white-space:nowrap !important; }
+    #scrollHint{ display:none !important; }
+    /* hide the grape + orange line art on mobile */
+    [data-fruit]{ display:none !important; }
+    /* navbar: solid, no glass blur */
+    #navBar{ height:58px !important; padding:0 16px !important;
+      backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+    #navBar span{ font-size:15px !important; }
+    #navBar > div:first-child{ gap:12px !important; }
+    /* keep vertical dividers between navbar items on mobile */
+    #navBar .nav-divider{ display:block !important; height:20px !important; }
+    /* favorites cards reflow */
+    [data-fav-card]{ width:min(360px,86vw) !important; height:auto !important; aspect-ratio:380/480 !important; }
+    [data-fav-bar]{ width:min(330px,80vw) !important; }
+    /* hide the busy favorites section on small screens */
+    #favorites{ display:none !important; }
+  }
+  @media (max-width:440px){
+    #navBar span{ font-size:14px !important; }
+    #panelText h1{ font-size:30px !important; }
+    #panelText p{ font-size:14px !important; line-height:1.95 !important; }
+    #heroBtns button{ font-size:16px !important; padding:12px 22px !important; }
+  }
+</style>
+</helmet>
+
+<div id="nakhl-root" dir="rtl" style="font-family:'Vazirmatn',sans-serif;background:#F3FFFC;position:relative;color:#1E1E1E;">
+
+  <!-- ===================== HERO (scroll-collapse) ===================== -->
+  <section id="heroWrap" style="position:relative;height:220vh;">
+    <div id="heroStage" style="position:sticky;top:0;height:100vh;width:100%;overflow:hidden;background:#F3FFFC;">
+
+      <!-- NAVBAR — inside the stage so navbar + logo share one stacking context -->
+      <nav id="navBar" style="position:absolute;top:0;left:0;width:100%;height:68px;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:0 40px;box-sizing:border-box;background:linear-gradient(90deg, rgba(127,166,156,0.28) 0%, rgba(255,255,255,0.10) 100%);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);transition:background .35s ease, box-shadow .35s ease;">
+        <div style="display:flex;align-items:center;gap:26px;">
+          <svg data-nav-usericon="" onClick="{{ goCustomer }}" width="27" height="27" viewBox="0 0 24 24" fill="#DFEFEB" style="filter:drop-shadow(0 1px 4px rgba(0,0,0,.4));cursor:pointer;"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.42 0-9 2.24-9 5.5V22h18v-2.5c0-3.26-4.58-5.5-9-5.5z"></path></svg>
+          <span onClick="{{ goCustomer }}" style="font-weight:700;font-size:20px;color:#DFEFEB;cursor:pointer;text-shadow:0 1px 6px rgba(0,0,0,.35);">حساب من</span>
+          <span class="nav-divider" style="width:1.5px;height:30px;background:#DFEFEB;opacity:.75;"></span>
+          <span onClick="{{ goMenu }}" style="font-weight:700;font-size:20px;color:#DFEFEB;cursor:pointer;text-shadow:0 1px 6px rgba(0,0,0,.35);">منو</span>
+          <span class="nav-divider" style="width:1.5px;height:30px;background:#DFEFEB;opacity:.75;"></span>
+          <span onClick="{{ goContact }}" style="font-weight:700;font-size:20px;color:#DFEFEB;cursor:pointer;text-shadow:0 1px 6px rgba(0,0,0,.35);">تماس با ما</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;margin-left:100px;">
+          <button onClick="{{ goAdmin }}" style="font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#334132;background:rgba(255,255,255,.88);border:none;border-radius:11px;padding:9px 16px;cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 2px 8px rgba(0,0,0,.18);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#334132" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            پنل مدیریت
+          </button>
+        </div>
+      </nav>
+
+      <!-- mint panel growing from the right (RTL start side) / left visually -->
+      <div id="mintPanel" style="position:absolute;top:0;left:0;height:100%;width:0vw;background:#F3FFFC;z-index:2;"></div>
+
+      <!-- hero photo, anchored to the right -->
+      <div id="heroImg" style="position:absolute;top:0;right:0;height:100%;width:100vw;z-index:1;background:linear-gradient(rgba(0,0,0,var(--herodim,.12)),rgba(0,0,0,var(--herodim,.12))), url(assets/hero.jpg) center/cover no-repeat;"></div>
+
+      <!-- panel text block (name + description), fades in -->
+      <div id="panelText" style="position:absolute;top:39vh;left:0;width:46vw;z-index:3;text-align:center;padding:0 4vw;opacity:0;">
+        <h1 style="font-family:'Lalezar',sans-serif;font-weight:400;font-size:clamp(34px,3.6vw,56px);color:#334132;margin:0 0 18px;line-height:1.1;">کافه رستوران نخل</h1>
+        <div style="width:80px;height:3px;background:#7FA69C;border-radius:3px;margin:0 auto 18px;"></div>
+        <p style="font-size:clamp(14px,1.05vw,18px);line-height:2.05;color:#46524494;color:rgba(45,54,42,.86);margin:0;max-width:30vw;margin-inline:auto;">نخل، گوشه‌ای آرام کنار دریاست؛ جایی که عطر غذاهای تازه، نسیم ساحل و مهمان‌نوازی گرم جنوب کنار هم می‌نشینند. هر بشقاب اینجا با مواد روز و دستِ سرآشپزهای ما آماده می‌شود تا هر وعده، خاطره‌ای ماندگار بسازد.</p>
+      </div>
+
+      <!-- logo: starts small top-left, grows into the panel; lives in the stage so it scrolls with the content -->
+      <img id="brandLogo" src="assets/logo.png" alt="نخل" style="position:absolute;top:16px;left:28px;width:64px;height:auto;z-index:70;filter:drop-shadow(0 6px 18px rgba(0,0,0,.18));pointer-events:none;">
+
+
+      <!-- the two CTA buttons: start centered over photo, slide into panel bottom -->
+      <div id="heroBtns" style="position:absolute;top:60vh;left:calc(50vw - 150px);z-index:45;display:flex;flex-direction:row-reverse;gap:16px;">
+        <button onClick="{{ goReserve }}" style="font-family:'Vazirmatn';font-weight:700;font-size:19px;color:#fff;background:rgba(127,166,156,0.72);border:1.5px solid rgba(255,255,255,0.5);border-radius:16px;padding:14px 30px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.22);transition:transform .18s ease,filter .18s ease;" style-hover="filter:brightness(1.1);transform:translateY(-2px);">رزرو میز</button>
+        <button onClick="{{ goMenu }}" style="font-family:'Vazirmatn';font-weight:700;font-size:19px;color:#fff;background:rgba(51,65,50,0.72);border:1.5px solid rgba(255,255,255,0.5);border-radius:16px;padding:14px 30px;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.22);transition:transform .18s ease,filter .18s ease;" style-hover="filter:brightness(1.15);transform:translateY(-2px);">منوی رستوران</button>
+      </div>
+
+      <!-- scroll hint -->
+      <div id="scrollHint" style="position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:46;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;">
+        <span style="font-size:14px;font-weight:500;text-shadow:0 1px 6px rgba(0,0,0,.4);">برای دیدن ادامه اسکرول کنید</span>
+        <div style="animation:nakhlFloat 1.8s ease-in-out infinite;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== FAVORITES ===================== -->
+  <section id="favorites" style="position:relative;background:#F3FFFC;padding:40px 0 120px;overflow:hidden;">
+    <img data-fruit="" src="assets/blueberry.svg" alt="" style="position:absolute;top:-10px;left:-40px;width:430px;opacity:.5;pointer-events:none;">
+    <img data-fruit="" src="assets/orange.svg" alt="" style="position:absolute;bottom:120px;right:-30px;width:250px;opacity:.5;pointer-events:none;transform:scaleX(-1);">
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:64px;position:relative;z-index:2;">
+      <img src="assets/favorite.svg" alt="" style="width:62px;height:62px;">
+      <h2 style="font-family:'Vazirmatn';font-weight:800;font-size:30px;color:#1E1E1E;margin:0;">پرطرفدارهای نخل</h2>
+      <span style="font-size:15px;color:#7FA69C;font-weight:600;">محبوب‌ترین انتخاب‌های مهمان‌های ما</span>
+    </div>
+
+    <div style="max-width:1120px;margin:0 auto;padding:0 32px;display:flex;flex-direction:column;gap:72px;position:relative;z-index:2;">
+      <sc-for list="{{ favorites }}" as="fav" hint-placeholder-count="3">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:48px;justify-content:center;flex-direction:{{ fav.rowDir }};">
+          <div style="position:relative;flex:0 0 auto;">
+            <div style="width:380px;height:480px;border-radius:0 0 40px 40px;background:{{ fav.cardBg }};box-shadow:7px 12px 36px 8px rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+              <sc-if value="{{ fav.noPhoto }}" hint-placeholder-val="{{ true }}">
+                <img src="{{ fav.icon }}" alt="{{ fav.name }}" style="width:180px;height:180px;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(0,0,0,.18));">
+              </sc-if>
+            </div>
+            <div onClick="{{ fav.openReviews }}" style="position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:340px;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(243,255,252,.94);border-radius:14px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.18);transition:transform .18s ease;" style-hover="transform:translateX(-50%) translateY(-3px);">
+              <div style="display:flex;align-items:center;">
+                <span style="font-size:13px;color:#334132;font-weight:600;">{{ fav.reviewCountFa }} نظر</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:7px;">
+                <span style="font-size:15px;font-weight:700;color:#1E1E1E;">نظرات شما</span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="#334132"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM7 9h10v2H7V9zm0 4h7v2H7v-2z"></path></svg>
+              </div>
+            </div>
+            <span style="position:absolute;top:16px;right:16px;background:{{ fav.rankColor }};color:#fff;font-family:'Lalezar';font-size:18px;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,.2);">{{ fav.rankFa }}</span>
+          </div>
+          <div style="flex:1 1 340px;max-width:440px;text-align:center;">
+            <span style="display:inline-block;font-size:12.5px;font-weight:700;color:{{ fav.rankColor }};background:{{ fav.tint }};padding:4px 14px;border-radius:20px;margin-bottom:12px;">🔥 {{ fav.ordersFa }} سفارش</span>
+            <h3 style="font-family:'Vazirmatn';font-weight:800;font-size:24px;color:#1E1E1E;margin:0 0 14px;">{{ fav.name }}</h3>
+            <p style="font-size:16px;line-height:2.1;color:rgba(45,54,42,.82);margin:0 0 18px;">{{ fav.desc }}</p>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <span style="color:#E6A93B;font-size:20px;letter-spacing:2px;">{{ fav.stars }}</span>
+              <span style="font-size:14px;color:#7FA69C;font-weight:600;">{{ fav.ratingFa }}</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ===================== RESERVATION ===================== -->
+  <section id="reserve" style="position:relative;background:var(--accent,#7FA69C);padding:72px 24px;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:radial-gradient(circle at 20% 0%, rgba(255,255,255,.16), transparent 55%);pointer-events:none;"></div>
+    <div style="max-width:980px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:48px;position:relative;z-index:2;justify-content:center;">
+      <div style="flex:1 1 280px;min-width:260px;color:#fff;text-align:center;">
+        <h2 style="font-family:'Lalezar',sans-serif;font-weight:400;font-size:72px;margin:0 0 14px;line-height:1;">رزرو میز</h2>
+        <p style="font-size:16px;line-height:2.1;opacity:.95;margin:0;max-width:360px;margin-inline:auto;">میزتان را پیش از حضور رزرو کنید تا بهترین جای رو به دریا برایتان آماده باشد. تیم ما رزرو شما را تأیید خواهد کرد.</p>
+      </div>
+
+      <div style="flex:1 1 380px;min-width:320px;background:#F3FFFC;border-radius:24px;padding:32px;box-shadow:0 18px 48px rgba(0,0,0,.22);">
+        <sc-if value="{{ reserved }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;padding:24px 8px;">
+            <div style="width:72px;height:72px;border-radius:50%;background:#7FA69C;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;">
+              <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <h3 style="font-family:'Vazirmatn';font-weight:800;font-size:22px;color:#334132;margin:0 0 10px;">رزرو شما ثبت شد!</h3>
+            <p style="font-size:15px;color:rgba(45,54,42,.8);line-height:2;margin:0 0 20px;">به‌زودی برای تأیید نهایی با شما تماس می‌گیریم. منتظر دیدارتان در نخل هستیم.</p>
+            <button onClick="{{ resetReserve }}" style="font-family:'Vazirmatn';font-weight:700;font-size:15px;color:#334132;background:transparent;border:2px solid #7FA69C;border-radius:12px;padding:10px 22px;cursor:pointer;">رزرو جدید</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ notReserved }}" hint-placeholder-val="{{ true }}">
+          <form onSubmit="{{ onReserve }}">
+            <h3 style="font-family:'Vazirmatn';font-weight:800;font-size:19px;color:#334132;margin:0 0 20px;text-align:center;">اطلاعات رزرو</h3>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <input required="" type="text" placeholder="نام و نام خانوادگی" style="font-family:'Vazirmatn';font-size:15px;padding:13px 16px;border:1.5px solid #d8e6e0;border-radius:12px;background:#fff;outline:none;color:#1E1E1E;">
+              <input required="" type="tel" placeholder="شماره تماس" style="font-family:'Vazirmatn';font-size:15px;padding:13px 16px;border:1.5px solid #d8e6e0;border-radius:12px;background:#fff;outline:none;color:#1E1E1E;direction:ltr;text-align:right;">
+              <select required="" style="font-family:'Vazirmatn';font-size:15px;padding:13px 16px;border:1.5px solid #d8e6e0;border-radius:12px;background:#fff;outline:none;color:#1E1E1E;">
+                <option value="">تعداد نفرات</option>
+                <option>۱ نفر</option><option>۲ نفر</option><option>۳ نفر</option><option>۴ نفر</option><option>۵ تا ۸ نفر</option><option>بیش از ۸ نفر</option>
+              </select>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#334132;margin-bottom:6px;text-align:right;">تاریخ (شمسی)</div>
+                <div style="display:flex;gap:10px;">
+                  <select required="" style="flex:1;font-family:'Vazirmatn';font-size:15px;padding:13px 12px;border:1.5px solid #d8e6e0;border-radius:12px;background:#fff;outline:none;color:#1E1E1E;">
+                    <option value="">روز</option>
+                    <sc-for list="{{ faDays }}" as="d" hint-placeholder-count="31"><option>{{ d }}</option></sc-for>
+                  </select>
+                  <select required="" style="flex:1.4;font-family:'Vazirmatn';font-size:15px;padding:13px 12px;border:1.5px solid #d8e6e0;border-radius:12px;background:#fff;outline:none;color:#1E1E1E;">
+                    <option value="">ماه</option>
+                    <sc-for list="{{ faMonths }}" as="m" hint-placeholder-count="12"><option>{{ m }}</option></sc-for>
+                  </select>
+                  <select required="" style="flex:1;font-family:'Vazirmatn';font-size:15px;padding:13px 12px;border:1.5px solid #d8e6e0;border-radius:12px;background:#fff;outline:none;color:#1E1E1E;">
+                    <option value="">سال</option>
+                    <sc-for list="{{ faYears }}" as="y" hint-placeholder-count="2"><option>{{ y }}</option></sc-for>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#334132;margin-bottom:6px;text-align:right;">ساعت</div>
+                <div style="display:flex;gap:10px;align-items:center;">
+                  <select required="" style="flex:1;font-family:'Vazirmatn';font-size:15px;padding:13px 12px;border:1.5px solid #d8e6e0;border-radius:12px;background:#fff;outline:none;color:#1E1E1E;">
+                    <option value="">ساعت</option>
+                    <sc-for list="{{ faHours }}" as="h" hint-placeholder-count="13"><option>{{ h }}</option></sc-for>
+                  </select>
+                  <span style="font-weight:700;color:#334132;">:</span>
+                  <select required="" style="flex:1;font-family:'Vazirmatn';font-size:15px;padding:13px 12px;border:1.5px solid #d8e6e0;border-radius:12px;background:#fff;outline:none;color:#1E1E1E;">
+                    <option value="">دقیقه</option>
+                    <sc-for list="{{ faMinutes }}" as="mn" hint-placeholder-count="4"><option>{{ mn }}</option></sc-for>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" style="font-family:'Vazirmatn';font-weight:700;font-size:17px;color:#fff;background:#334132;border:none;border-radius:14px;padding:15px;cursor:pointer;margin-top:4px;transition:filter .18s ease,transform .18s ease;" style-hover="filter:brightness(1.15);transform:translateY(-2px);">ثبت رزرو</button>
+            </div>
+          </form>
+        </sc-if>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONTACT ===================== -->
+  <section id="contact" style="position:relative;background:#F3FFFC;padding:80px 32px;overflow:hidden;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:48px;">
+      <h2 style="font-family:'Vazirmatn';font-weight:800;font-size:30px;color:#1E1E1E;margin:0;">ارتباط با ما</h2>
+      <span style="font-size:15px;color:#7FA69C;font-weight:600;">از هر راهی که راحت‌ترید با نخل در تماس باشید</span>
+      <div style="width:60px;height:3px;background:#7FA69C;border-radius:3px;margin-top:6px;"></div>
+    </div>
+    <div style="max-width:980px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;">
+      <!-- Instagram -->
+      <a href="#" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:12px;background:#fff;border-radius:20px;padding:28px 20px;box-shadow:0 4px 16px rgba(45,70,60,.07);border:1.5px solid #eef4f1;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;" style-hover="transform:translateY(-6px);box-shadow:0 16px 34px rgba(45,70,60,.15);border-color:#C2843E;">
+        <span style="width:62px;height:62px;border-radius:50%;background:rgba(194,132,62,.13);display:flex;align-items:center;justify-content:center;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="#C2843E"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zm0 3.68A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zm0 10.16A4 4 0 1 1 16 12a4 4 0 0 1-4 4zm6.41-10.4a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44z"></path></svg>
+        </span>
+        <span style="font-weight:700;font-size:16px;color:#1E1E1E;">اینستاگرام</span>
+        <span style="font-size:13.5px;color:rgba(45,54,42,.5);direction:ltr;font-weight:600;">@________</span>
+      </a>
+      <!-- Telegram -->
+      <a href="#" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:12px;background:#fff;border-radius:20px;padding:28px 20px;box-shadow:0 4px 16px rgba(45,70,60,.07);border:1.5px solid #eef4f1;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;" style-hover="transform:translateY(-6px);box-shadow:0 16px 34px rgba(45,70,60,.15);border-color:#3f8fc4;">
+        <span style="width:62px;height:62px;border-radius:50%;background:rgba(63,143,196,.13);display:flex;align-items:center;justify-content:center;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="#3f8fc4"><path d="M21.94 4.27 18.9 18.6c-.23 1.01-.83 1.26-1.69.79l-4.66-3.44-2.25 2.16c-.25.25-.46.46-.94.46l.33-4.74 8.63-7.8c.38-.33-.08-.52-.58-.19L7.45 13.2l-4.6-1.44c-1-.31-1.02-1 .21-1.48L20.65 2.8c.83-.31 1.56.2 1.29 1.47z"></path></svg>
+        </span>
+        <span style="font-weight:700;font-size:16px;color:#1E1E1E;">تلگرام</span>
+        <span style="font-size:13.5px;color:rgba(45,54,42,.5);direction:ltr;font-weight:600;">@________</span>
+      </a>
+      <!-- Bale -->
+      <a href="#" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:12px;background:#fff;border-radius:20px;padding:28px 20px;box-shadow:0 4px 16px rgba(45,70,60,.07);border:1.5px solid #eef4f1;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;" style-hover="transform:translateY(-6px);box-shadow:0 16px 34px rgba(45,70,60,.15);border-color:#5E9C8B;">
+        <span style="width:62px;height:62px;border-radius:50%;background:rgba(94,156,139,.14);display:flex;align-items:center;justify-content:center;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5E9C8B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        </span>
+        <span style="font-weight:700;font-size:16px;color:#1E1E1E;">بله</span>
+        <span style="font-size:13.5px;color:rgba(45,54,42,.5);direction:ltr;font-weight:600;">@________</span>
+      </a>
+      <!-- Phone -->
+      <a href="#" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:12px;background:#fff;border-radius:20px;padding:28px 20px;box-shadow:0 4px 16px rgba(45,70,60,.07);border:1.5px solid #eef4f1;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;" style-hover="transform:translateY(-6px);box-shadow:0 16px 34px rgba(45,70,60,.15);border-color:#334132;">
+        <span style="width:62px;height:62px;border-radius:50%;background:rgba(51,65,50,.12);display:flex;align-items:center;justify-content:center;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#334132" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+        </span>
+        <span style="font-weight:700;font-size:16px;color:#1E1E1E;">تماس تلفنی</span>
+        <span style="font-size:13.5px;color:rgba(45,54,42,.5);direction:ltr;font-weight:600;">— — —</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer style="background:#1C241B;color:#cfd8cd;padding:64px 32px 28px;">
+    <div style="max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;gap:48px;justify-content:space-between;">
+      <div style="flex:1 1 260px;min-width:240px;">
+        <img src="assets/logo.png" alt="نخل" style="width:96px;height:auto;margin-bottom:14px;filter:brightness(1.6);">
+        <p style="font-size:14px;line-height:2.1;color:#9fb09a;max-width:300px;margin:0;">کافه رستوران نخل، تجربه‌ای از طعم اصیل و فضای دلنشین کنار دریا. هر روز از ظهر تا نیمه‌شب میزبان شما هستیم.</p>
+      </div>
+      <div style="flex:0 1 160px;">
+        <h4 style="font-family:'Vazirmatn';font-weight:700;font-size:16px;color:#fff;margin:0 0 16px;">دسترسی سریع</h4>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:14px;">
+          <span onClick="{{ goTop }}" style="cursor:pointer;color:#9fb09a;transition:color .18s;" style-hover="color:#fff;">صفحه اصلی</span>
+          <span onClick="{{ goMenu }}" style="cursor:pointer;color:#9fb09a;transition:color .18s;" style-hover="color:#fff;">منوی رستوران</span>
+          <span onClick="{{ goReserve }}" style="cursor:pointer;color:#9fb09a;transition:color .18s;" style-hover="color:#fff;">رزرو میز</span>
+          <span onClick="{{ goCustomer }}" style="cursor:pointer;color:#9fb09a;transition:color .18s;" style-hover="color:#fff;">حساب کاربری</span>
+          <span onClick="{{ goAdmin }}" style="cursor:pointer;color:#9fb09a;transition:color .18s;" style-hover="color:#fff;">ورود مدیریت</span>
+        </div>
+      </div>
+      <div style="flex:0 1 240px;">
+        <h4 style="font-family:'Vazirmatn';font-weight:700;font-size:16px;color:#fff;margin:0 0 16px;">اطلاعات تماس</h4>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:14px;color:#9fb09a;line-height:1.8;">
+          <span>بندرعباس، بلوار ساحلی، نبش نخل ۱۲</span>
+          <span style="direction:ltr;text-align:right;">۰۷۶ - ۳۳۳۳ ۱۲۱۲</span>
+          <span>هر روز، ۱۲:۰۰ تا ۲۴:۰۰</span>
+        </div>
+      </div>
+      <div style="flex:0 1 160px;">
+        <h4 style="font-family:'Vazirmatn';font-weight:700;font-size:16px;color:#fff;margin:0 0 16px;">ما را دنبال کنید</h4>
+        <div style="display:flex;gap:14px;">
+          <a href="#" style="width:42px;height:42px;border-radius:50%;background:#2c3a2a;display:flex;align-items:center;justify-content:center;transition:background .2s;" style-hover="background:#7FA69C;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#cfd8cd"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zm0 3.68A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zm0 10.16A4 4 0 1 1 16 12a4 4 0 0 1-4 4zm6.41-10.4a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44z"></path></svg></a>
+          <a href="#" style="width:42px;height:42px;border-radius:50%;background:#2c3a2a;display:flex;align-items:center;justify-content:center;transition:background .2s;" style-hover="background:#7FA69C;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#cfd8cd"><path d="M21.94 4.27 18.9 18.6c-.23 1.01-.83 1.26-1.69.79l-4.66-3.44-2.25 2.16c-.25.25-.46.46-.94.46l.33-4.74 8.63-7.8c.38-.33-.08-.52-.58-.19L7.45 13.2l-4.6-1.44c-1-.31-1.02-1 .21-1.48L20.65 2.8c.83-.31 1.56.2 1.29 1.47z"></path></svg></a>
+          <a href="#" style="width:42px;height:42px;border-radius:50%;background:#2c3a2a;display:flex;align-items:center;justify-content:center;transition:background .2s;" style-hover="background:#7FA69C;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#cfd8cd"><path d="M17.5 14.4c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.22 3.08.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35zM12 2a10 10 0 0 0-8.6 15.06L2 22l5.06-1.33A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3 .79.8-2.92-.19-.3A8.2 8.2 0 1 1 12 20.2z"></path></svg></a>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:1120px;margin:36px auto 0;padding-top:22px;border-top:1px solid #2c3a2a;text-align:center;font-size:13px;color:#7d8c79;">© ۱۴۰۴ کافه رستوران نخل — تمامی حقوق محفوظ است.</div>
+  </footer>
+
+  <!-- ===================== REVIEWS MODAL ===================== -->
+  <sc-if value="{{ reviewsOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeReviews }}" style="position:fixed;inset:0;z-index:90;background:rgba(20,28,20,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:24px;">
+      <div onClick="{{ stop }}" style="width:100%;max-width:520px;max-height:84vh;overflow-y:auto;background:#F3FFFC;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.4);animation:nakhlFade .28s ease;">
+        <div style="position:sticky;top:0;background:#334132;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-radius:22px 22px 0 0;">
+          <div>
+            <div style="font-family:'Vazirmatn';font-weight:800;font-size:18px;color:#fff;">نظرات مهمان‌ها</div>
+            <div style="font-size:13px;color:#bcd0c8;margin-top:3px;">{{ activeTitle }}</div>
+          </div>
+          <span onClick="{{ closeReviews }}" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;line-height:1;">×</span>
+        </div>
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:16px;">
+          <sc-for list="{{ activeReviews }}" as="rev" hint-placeholder-count="3">
+            <div style="display:flex;gap:14px;padding:16px;background:#fff;border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,.05);">
+              <span style="flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:{{ rev.color }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;">{{ rev.initial }}</span>
+              <div style="flex:1;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-weight:700;font-size:15px;color:#1E1E1E;">{{ rev.name }}</span>
+                  <span style="font-size:12px;color:#9aa897;">{{ rev.date }}</span>
+                </div>
+                <div style="color:#E6A93B;font-size:15px;letter-spacing:1px;margin:5px 0 7px;">{{ rev.stars }}</div>
+                <p style="font-size:14px;line-height:1.95;color:rgba(45,54,42,.82);margin:0;">{{ rev.text }}</p>
+              </div>
+            </div>
+          </sc-for>
+          <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:#eaf4ef;border-radius:14px;border:1.5px dashed #b9d2c8;">
+            <input type="text" placeholder="نظر خود را بنویسید..." style="flex:1;font-family:'Vazirmatn';font-size:14px;border:none;background:transparent;outline:none;color:#1E1E1E;">
+            <button style="font-family:'Vazirmatn';font-weight:700;font-size:14px;color:#fff;background:#7FA69C;border:none;border-radius:10px;padding:9px 18px;cursor:pointer;">ارسال</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <!-- ===================== SCROLL-TO-TOP ===================== -->
+  <div id="toTop" onClick="{{ goTop }}" style="position:fixed;bottom:28px;left:28px;z-index:80;width:52px;height:52px;border-radius:50%;background:#334132;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .3s ease,transform .3s ease,visibility .3s;" style-hover="background:#7FA69C;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#7FA69C&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showFruitArt&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;heroDim&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:0.12,&quot;min&quot;:0,&quot;max&quot;:0.5,&quot;step&quot;:0.02,&quot;tsType&quot;:&quot;number&quot;}}">
+class Component extends DCLogic {
+  state = { reviews: null, reserved: false, s: null };
+
+  componentDidMount() {
+    Promise.all([import('./nakhl-store.js')]).then(([m]) => {
+      this.store = m.store; this.topFavorites = m.topFavorites; this.approvedComments = m.approvedComments;
+      this.setState({ s: this.store.get() });
+      this._unsub = this.store.subscribe(() => this.setState({ s: this.store.get() }));
+    }).catch(e => console.error('store load', e));
+    this.els = {
+      img: document.getElementById('heroImg'),
+      panel: document.getElementById('mintPanel'),
+      text: document.getElementById('panelText'),
+      logo: document.getElementById('brandLogo'),
+      btns: document.getElementById('heroBtns'),
+      hint: document.getElementById('scrollHint'),
+      nav: document.getElementById('navBar'),
+      wrap: document.getElementById('heroWrap'),
+      toTop: document.getElementById('toTop'),
+    };
+    this.onScroll = this.onScroll.bind(this);
+    this.ticking = false;
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this.onScroll);
+    this.applyProps();
+    this.compute();
+  }
+
+  componentDidUpdate() { this.applyProps(); }
+
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this.onScroll);
+    if (this._unsub) this._unsub();
+  }
+
+  applyProps() {
+    const root = document.getElementById('nakhl-root');
+    if (root) {
+      root.style.setProperty('--accent', this.props.accentColor || '#7FA69C');
+      root.style.setProperty('--herodim', String(this.props.heroDim != null ? this.props.heroDim : 0.12));
+    }
+    const show = this.props.showFruitArt !== false;
+    document.querySelectorAll('[data-fruit]').forEach(el => { el.style.display = show ? 'block' : 'none'; });
+  }
+
+  onScroll() {
+    if (this.ticking) return;
+    this.ticking = true;
+    requestAnimationFrame(() => { this.ticking = false; this.compute(); });
+  }
+
+  compute() {
+    const wrap = this.els && this.els.wrap;
+    if (!wrap) return;
+    const r = wrap.getBoundingClientRect();
+    const total = wrap.offsetHeight - window.innerHeight;
+    let p = total > 0 ? (-r.top) / total : 0;
+    p = Math.max(0, Math.min(1, p));
+    const e = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    this.apply(e, p);
+    // scroll-to-top button: show once past the hero
+    if (this.els.toTop) {
+      const show = window.scrollY > window.innerHeight * 0.8;
+      this.els.toTop.style.opacity = show ? '1' : '0';
+      this.els.toTop.style.visibility = show ? 'visible' : 'hidden';
+      this.els.toTop.style.transform = show ? 'translateY(0)' : 'translateY(12px)';
+    }
+  }
+
+  apply(e, praw) {
+    const W = window.innerWidth, H = window.innerHeight;
+    const { img, panel, text, logo, btns, hint, nav } = this.els;
+
+    // ---- mobile: layout handled by CSS media query; nav is always solid (not glassy) ----
+    if (W <= 768) {
+      if (nav) {
+        nav.style.background = 'linear-gradient(90deg, #334132, #283427)';
+        nav.style.boxShadow = '0 3px 14px rgba(0,0,0,.22)';
+      }
+      if (logo) logo.style.opacity = '1';
+      // reset any desktop inline transforms left on hero elements
+      if (img) img.style.width = '100vw';
+      if (panel) panel.style.width = '0vw';
+      return;
+    }
+
+    const cx = W * 0.23; // centre of the mint panel (46vw wide, anchored left)
+    if (img) img.style.width = (100 - 46 * e) + 'vw';
+    if (panel) panel.style.width = (46 * e) + 'vw';
+    // logo locks fully at e=0.4 — BEFORE the title starts fading in (e>0.55),
+    // so once the name appears the logo never moves again.
+    const logoE = Math.min(1, e / 0.4);
+    const lEnd = Math.min(140, H * 0.17);          // final logo width (capped small)
+    const lH = lEnd * (871 / 772);                 // final logo height
+    const logoTopEnd = H * 0.07;
+    const textTopEnd = logoTopEnd + lH + H * 0.055;
+    if (logo) {
+      const size = 64 + (lEnd - 64) * logoE;
+      logo.style.width = size + 'px';
+      const sx = 28, sy = 16;
+      const ex = cx - size / 2, ey = logoTopEnd;
+      logo.style.left = (sx + (ex - sx) * logoE) + 'px';
+      logo.style.top = (sy + (ey - sy) * logoE) + 'px';
+    }
+    let textH = 150;
+    if (text) {
+      text.style.top = textTopEnd + 'px';
+      const o = Math.max(0, Math.min(1, (e - 0.55) / 0.35));
+      text.style.opacity = o;
+      text.style.transform = 'translateY(' + (24 * (1 - o)) + 'px)';
+      textH = text.offsetHeight || textH;
+    }
+    if (btns) {
+      const bw = btns.offsetWidth || 300;
+      const sx = W / 2 - bw / 2, sy = H * 0.60;
+      const ex = cx - bw / 2;
+      const ey = Math.min(H - 90, textTopEnd + textH + H * 0.04);
+      btns.style.left = (sx + (ex - sx) * e) + 'px';
+      btns.style.top = (sy + (ey - sy) * e) + 'px';
+    }
+    if (hint) hint.style.opacity = Math.max(0, 1 - praw * 3.2);
+    if (logo) logo.style.opacity = '1';
+    if (nav) {
+      if (praw > 0.8) {
+        nav.style.background = 'linear-gradient(90deg, rgba(51,65,50,.96), rgba(40,52,39,.96))';
+        nav.style.boxShadow = '0 4px 18px rgba(0,0,0,.18)';
+      } else {
+        nav.style.background = 'linear-gradient(90deg, rgba(127,166,156,0.28) 0%, rgba(255,255,255,0.10) 100%)';
+        nav.style.boxShadow = 'none';
+      }
+    }
+  }
+
+  scrollToId(id) {
+    const el = document.getElementById(id);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 30, behavior: 'smooth' });
+  }
+
+  avgRating(comments) {
+    const toFa = (n) => String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+    const avg = comments.reduce((a, c) => a + c.rating, 0) / comments.length;
+    return toFa(avg.toFixed(1).replace('.', '٫')) + ' از ۵';
+  }
+  initial(name) { return (name || '?').trim().charAt(0); }
+  avatarColor(i) { return ['#C2843E', '#7FA69C', '#334132', '#C24F3C', '#5E9C8B'][i % 5]; }
+
+  renderVals() {
+    const toFa = (n) => String(n).replace(/[0-9]/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+    const s = this.state.s;
+    const rankColors = ['#E0913C', '#C8513B', '#5E9C8B'];
+    const rankTints = ['rgba(224,145,60,.13)', 'rgba(200,81,59,.12)', 'rgba(94,156,139,.14)'];
+    const cardBgs = ['linear-gradient(150deg,#F6E4CC,#EBC79A)', 'linear-gradient(150deg,#F4D6CF,#E3A99A)', 'linear-gradient(150deg,#D7EAE3,#A9CFC3)'];
+
+    const topItems = s ? this.topFavorites(s, 3) : [];
+    const favorites = topItems.map((it, i) => {
+      const comments = this.approvedComments(s, it.id);
+      return {
+        id: it.id, name: it.name, desc: it.desc || 'یکی از پرسفارش‌ترین انتخاب‌های مهمان‌های نخل.',
+        icon: it.icon, noPhoto: !it.photo, cardBg: it.photo ? ('center/cover no-repeat url(' + it.photo + ')') : cardBgs[i],
+        ordersFa: toFa(it.orders), reviewCountFa: toFa(comments.length),
+        ratingFa: comments.length ? (this.avgRating(comments)) : '۵٫۰ از ۵', stars: '★★★★★',
+        rankFa: toFa(i + 1), rankColor: rankColors[i], tint: rankTints[i],
+        rowDir: i % 2 === 1 ? 'row-reverse' : 'row',
+        openReviews: () => this.setState({ reviews: it.id }),
+      };
+    });
+
+    const key = this.state.reviews;
+    let activeReviews = [], activeTitle = '';
+    if (key && s) {
+      const it = s.items.find(x => x.id === key);
+      activeTitle = it ? it.name : '';
+      activeReviews = this.approvedComments(s, key).map((c, i) => ({
+        name: c.name, initial: this.initial(c.name), color: this.avatarColor(i),
+        stars: '★★★★★'.slice(0, c.rating) + '☆☆☆☆☆'.slice(0, 5 - c.rating),
+        date: c.date || '', text: c.text,
+      }));
+    }
+    const active = key ? { title: activeTitle, list: activeReviews } : null;
+    const faDays = Array.from({ length: 31 }, (_, i) => toFa(i + 1));
+    const faMonths = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+    const faYears = ['۱۴۰۴', '۱۴۰۵'];
+    const faHours = Array.from({ length: 13 }, (_, i) => toFa(i + 12));
+    const faMinutes = ['۰۰', '۱۵', '۳۰', '۴۵'];
+    return {
+      faDays, faMonths, faYears, faHours, faMinutes,
+      favorites,
+      reviewsOpen: !!key,
+      activeReviews: active ? active.list : [],
+      activeTitle: active ? active.title : '',
+      reserved: this.state.reserved,
+      notReserved: !this.state.reserved,
+      closeReviews: () => this.setState({ reviews: null }),
+      stop: (ev) => { ev.stopPropagation(); },
+      onReserve: (ev) => { ev.preventDefault(); this.setState({ reserved: true }); },
+      resetReserve: () => this.setState({ reserved: false }),
+      goMenu: () => { window.location.href = 'منوی نخل.dc.html'; },
+      goCustomer: () => { window.location.href = 'پنل مشتری نخل.dc.html'; },
+      goAdmin: () => { window.location.href = 'پنل مدیریت نخل.dc.html'; },
+      goReserve: () => this.scrollToId('reserve'),
+      goContact: () => this.scrollToId('contact'),
+      goFav: () => this.scrollToId('favorites'),
+      goTop: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+    };
+  }
+}
+</script>
+</body>
+</html>
